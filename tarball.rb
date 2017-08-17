@@ -1,6 +1,8 @@
 require 'fileutils'
 
 module Bundle
+
+  # Logs factory, doesn't do much so make it static
   class Logs
     def self.bundle(options, test_source = '')
       temp = 'logs'
@@ -12,7 +14,7 @@ module Bundle
       if File.exist?(temp)
         # assuming we are running on a Unix like system
         # create tarball and remove temp dir
-        system "tar -czf logs.tar.gz #{temp} && rm -rf #{temp}"
+        system "tar -czvf logs.tar.gz #{temp} && rm -rf #{temp}"
       end
     end
   end
@@ -22,7 +24,8 @@ module Bundle
       # if a required option is not defined we will throw, but it's ok since all of the options are required
       @location_dir = test_source + options[:source_dir]
       @destination_dir = File.join(Dir.pwd, 'logs', options[:destination_dir])
-      @files = options[:files]
+      @files = options[:files].class == Array ? options[:files] : [options[:files]]
+
     end
 
     # Gather required files to the local logs dir
@@ -60,8 +63,8 @@ end
 
 options = [
   {source_dir: '/var/log',       files: %w(auth.log* dmesg* syslog*), destination_dir: 'system-logs'},
-  {source_dir: '/var/log/nginx', files: %w(*)                       , destination_dir: 'web-logs'},
-  {source_dir: '/var/log/mysql', files: %w(*)                       , destination_dir: 'database-logs'}
+  {source_dir: '/var/log/nginx', files: '*'                         , destination_dir: 'web-logs'},
+  {source_dir: '/var/log/mysql', files: '*'                         , destination_dir: 'database-logs'}
 ]
 
 # Since I don't have mysql and nginx installed I created a simple test directory layout
